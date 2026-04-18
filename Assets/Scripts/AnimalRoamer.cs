@@ -1,15 +1,16 @@
 using UnityEngine;
+using ithappy.Animals_FREE;
 
 public class AnimalRoamer : MonoBehaviour {
 
     public Transform areaCenter;
     public float areaRadius = 5f;
 
-    public float moveSpd = 1f;
     public float minWaitTime = 1f;
     public float maxWaitTime = 5f;
+    public bool runSometimes = false;
 
-    Animator anim;
+    CreatureMover mover;
     Vector3 targetPos;
     float waitTimer = 0f;
     bool waiting = true;
@@ -18,18 +19,21 @@ public class AnimalRoamer : MonoBehaviour {
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start() {
-        anim = GetComponentInChildren<Animator>();
-        if(anim != null) {
-            anim.applyRootMotion = false;
-        }
+        mover = GetComponent<CreatureMover>();
+
         targetPos = transform.position;
+        waitTimer = Random.Range(minWaitTime, maxWaitTime);
     }
 
     // Update is called once per frame
     void Update() {
-        if (waiting) {
+        if(mover == null || areaCenter == null) return;
+
+        if(waiting) {
             waitTimer -= Time.deltaTime;
-            anim.SetFloat("Speed", 0f);
+            //Telling animal to stand still
+            mover.SetInput(Vector2.zero, transform.position + transform.forward, false, false);
+
             if(waitTimer <= 0f) {
                 targetPos = GetRandomPoint();
                 waiting = false;
@@ -37,23 +41,22 @@ public class AnimalRoamer : MonoBehaviour {
             return;
         }
 
-        //Moving target forward
-        Vector3 dir = (targetPos - transform.position).normalized;
-        transform.position = Vector3.MoveTowards(transform.position, targetPos, moveSpd * Time.deltaTime);
+        //Calculating dir to target as a Vector2(x, z)
+        Vector3 dir = targetPos - transform.position;
+        dir.y = 0f;
+        float dist = dir.magnitude;
 
-
-        //Facing forward direction
-        if(dir != Vector3.zero) {
-            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(dir), Time.deltaTime * 5f);
-        }
-
-        anim.SetFloat("Speed", moveSpd);
-
-        //If arrived at destination
-        if(Vector3.Distance(transform.position, targetPos) < 0.2f) {
+        if(dist < 0.3f) {
             waiting = true;
             waitTimer = Random.Range(minWaitTime, maxWaitTime);
+            return;
         }
+
+        Vector2 axis = new Vector2(dir.normalized.x, dir.normalized.z);
+        bool shouldRun = runSometimes && Random.value > 0.7f;
+
+        //Handing off movement, rotation and animation to CreatureMover
+        mover.SetInput(axis, targetPos, shouldRun, false);
     }
 
     Vector3 GetRandomPoint() {
@@ -65,4 +68,12 @@ public class AnimalRoamer : MonoBehaviour {
             pt.y = hit.point.y;
         return pt;
     }
+
+    
+    void OnDrawGizmosSelected() {
+        if(areaCenter == null) return;
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(areaCenter.position, areaRadius);
+    }
+    
 }
