@@ -10,7 +10,7 @@ public class AnimalSnack : MonoBehaviour {
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start() {
-        audioSource = GetComponent<audioSource>();
+        audioSource = GetComponent<AudioSource>();
     }
 
     void OnTriggerEat(Collider other) {
