@@ -7,13 +7,12 @@ public class AnimalSnack : MonoBehaviour {
 
     AudioSource audioSource;
 
-
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start() {
         audioSource = GetComponent<AudioSource>();
     }
 
-    void OnTriggerEat(Collider other) {
+    void OnTriggerEnter(Collider other) {
         if(other.CompareTag("Snack") ) {
             Destroy(other.gameObject);
             audioSource.PlayOneShot(crunchSound);
