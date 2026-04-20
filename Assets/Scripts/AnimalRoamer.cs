@@ -4,11 +4,12 @@ using ithappy.Animals_FREE;
 public class AnimalRoamer : MonoBehaviour {
 
     public Transform areaCenter;
-    public float areaRadius = 5f;
+    public float areaRadius = 4f;
 
     public float minWaitTime = 1f;
     public float maxWaitTime = 5f;
     public bool runSometimes = false;
+    public bool shouldRun = false;
 
     CreatureMover mover;
     Vector3 targetPos;
@@ -28,6 +29,14 @@ public class AnimalRoamer : MonoBehaviour {
     // Update is called once per frame
     void Update() {
         if(mover == null || areaCenter == null) return;
+
+        //If the penguin is moving away / out of the radius, move it back into the designated radius
+        Vector3 toCenter = areaCenter.position - transform.position;
+        toCenter.y = 0f;
+        if (toCenter.magnitude > areaRadius) {
+            targetPos = areaCenter.position;    //Make it walk back towards the center
+            waiting = false;
+        }
 
         if(waiting) {
             waitTimer -= Time.deltaTime;
@@ -53,13 +62,14 @@ public class AnimalRoamer : MonoBehaviour {
         }
 
         Vector2 axis = new Vector2(dir.normalized.x, dir.normalized.z);
-        bool shouldRun = runSometimes && Random.value > 0.7f;
 
         //Handing off movement, rotation and animation to CreatureMover
         mover.SetInput(axis, targetPos, shouldRun, false);
     }
 
     Vector3 GetRandomPoint() {
+        shouldRun = runSometimes && Random.value > 0.7f;
+    
         Vector2 rand = Random.insideUnitCircle * areaRadius;
         Vector3 pt = areaCenter.position + new Vector3(rand.x, 0f, rand.y);
 

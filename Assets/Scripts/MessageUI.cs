@@ -8,7 +8,7 @@ public class MessageUI : MonoBehaviour {
     public TextMeshProUGUI zenLevelText;
     public TextMeshProUGUI progressText;
 
-    public float returnTime = 5f;
+    public float returnTime = 10f;
     public string mainSceneName = "ZenGarden";
 
 

@@ -7,7 +7,7 @@ public class DayCycle : MonoBehaviour {
     public Material sunset;
 
 
-    public float totalDuration = 120f;  //2 Minutes
+    public float totalDuration = 360f;  //6 Minutes
 
     public Color sunriseAmbient = new Color(1f, 0.6f, 0.3f);
     public Color dayAmbient = new Color(1f, 1f, 1f);
@@ -25,16 +25,22 @@ public class DayCycle : MonoBehaviour {
         timer += Time.deltaTime;
         float t = Mathf.Clamp01(timer / totalDuration);
 
-        //Sunrise --> Day (0 - 0.5)
-        //Day --> Sunset (0.5 - 1)
-        if(t < 0.5) {
-            float phase = t / 0.5f;
-            RenderSettings.skybox = phase < 0.5f ? sunrise : day;
+        if (t < 0.333f) {
+            // Sunrise phase (0 to 2 min)
+            float phase = t / 0.333f;
+            RenderSettings.skybox = sunrise;
+            RenderSettings.ambientLight = Color.Lerp(sunriseAmbient, sunriseAmbient, phase);
+        } 
+        else if (t < 0.666f) {
+            // Day phase (2 to 4 min)
+            float phase = (t - 0.333f) / 0.333f;
+            RenderSettings.skybox = day;
             RenderSettings.ambientLight = Color.Lerp(sunriseAmbient, dayAmbient, phase);
-        }
+        } 
         else {
-            float phase = (t - 0.5f) / 0.5f;
-            RenderSettings.skybox = phase < 0.5f ? day : sunset;
+            // Sunset phase (4 to 6 min)
+            float phase = (t - 0.666f) / 0.333f;
+            RenderSettings.skybox = sunset;
             RenderSettings.ambientLight = Color.Lerp(dayAmbient, sunsetAmbient, phase);
         }
         DynamicGI.UpdateEnvironment();
