@@ -4,7 +4,7 @@ using ithappy.Animals_FREE;
 public class AnimalRoamer : MonoBehaviour {
 
     public Transform areaCenter;
-    public float areaRadius = 4f;
+    public float areaRadius = 3f;
 
     public float minWaitTime = 1f;
     public float maxWaitTime = 5f;
